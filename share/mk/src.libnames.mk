@@ -345,6 +345,7 @@ _DP_ssh=	crypto crypt z
 .if ${MK_LDNS} != "no"
 _DP_ssh+=	ldns
 .endif
+_DP_ssh+=	System
 _DP_edit=	tinfow
 .if ${MK_OPENSSL} != "no"
 _DP_bsnmp=	crypto
