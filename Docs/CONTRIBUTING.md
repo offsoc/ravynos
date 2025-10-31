@@ -12,16 +12,16 @@ We expect everyone interacting with this project to adhere to the [Contributor C
 
 As an open-source project, we love receiving contributions from our community - you! There are so many ways to help out, from writing documentation or tutorials, testing and submitting bug reports, creating art assets, answering user questions, editing wiki pages, and writing code in the project itself.
 
-As of March 2024, these are still the top priorities:
+As of October 2025, these are the top priorities:
 * System build wrangling - bringing in third-party sources to the system tree, packaging stuff into Frameworks, etc
+* Getting Darwin code to build/boot
 * Ongoing work on the desktop shell: WindowServer, LoginWindow, SystemUIServer (implementing MenuExtras, StatusItems), Dock, Filer
 * Continue updating the Cocoa frameworks to add missing features and update existing ones
-* Help convert everything to Mach-O: remove ELF assumptions, port Apple's dyld, write a better kernel image activator
 * Replace CoreFoundation with the one from Swift 
 
 Some other ideas for code contributions can be found on our [Project Wish List](https://wiki.ravynos.com/project-wish-list) and [Roadmap](https://wiki.ravynos.com/roadmap) pages, or by looking through the [open issues](https://github.com/ravynsoft/ravynos/issues).
 
-The skills we need immediately are: *C/C++, Objective-C, x86-64 assembly, linker/toolchain, kernel programming, OpenGL graphics programming, Wayland development*.
+The skills we need immediately are: *C/C++, Objective-C, x86-64 assembly, linker/toolchain, Darwin kernel and driver (kext) programming, graphics programming*.
 
 
 ### Join the community
