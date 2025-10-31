@@ -8,6 +8,7 @@ TARGET_ARCH?=	${MACHINE_ARCH}
 SRCTOP=		   ${.CURDIR}
 MACTOP=		   ${SRCTOP}/_distribution-macOS
 BSDTOP=		   ${SRCTOP}/_FreeBSD
+CONTRIB=	   ${SRCTOP}/contrib
 OBJTOP?=	   /usr/obj/ravynOS/${TARGET}
 BUILDROOT=	   ${OBJTOP}/release/dist/ravynOS
 RAVYNOS_VERSION!=  sed -e '1q;d' ${SRCTOP}/version.txt
@@ -27,7 +28,8 @@ GMAKE?=		gmake
 
 buildworld: _bootstrap
 
-_BOOTSTRAP_OBJDIRS=	${OBJTOP}/_bootstrap/llvmCore \
+_BOOTSTRAP_OBJDIRS=	\
+			${OBJTOP}/_bootstrap/clang \
 			${OBJTOP}/tmp/obj-tools
 
 ${_BOOTSTRAP_OBJDIRS}:
@@ -35,18 +37,20 @@ ${_BOOTSTRAP_OBJDIRS}:
 	mkdir -p ${d}
 .endfor
 
-${OBJTOP}/_bootstrap/llvmCore/Makefile:
-	cd ${.TARGET:H}; ${MACTOP}/llvmCore/configure \
-		--prefix=/usr --sysconfdir=/etc --localstatedir=/var \
-		--target=${MACHINE}-apple-darwin \
-		--enable-optimized --disable-assertions --disable-docs
-
-_bootstrap-llvmCore: ${OBJTOP}/${.TARGET:S/-/\//}/Makefile
+_bootstrap-clang:
 	cd ${OBJTOP}/${.TARGET:S/-/\//}; \
-		PYTHONPATH=${MACTOP}/llvmCore/utils/llvm-build/llvmbuild \
-		MAKEFLAGS="" MAKE=${GMAKE} \
-		${GMAKE}
-	cd ${OBJTOP}/${.TARGET:S/-/\//}; MAKEFLAGS="" MAKE="${GMAKE}" \
-		${GMAKE} install DESTDIR=${OBJTOP}/tmp/obj-tools
+	cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
+		-DLLVM_ENABLE_PROJECTS='clang;lldb' \
+		-DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" \
+		-DLLVM_TARGETS_TO_BUILD="X86" \
+		-DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON \
+		-DLLVM_CREATE_XCODE_TOOLCHAIN=ON \
+		-DLLVM_DEFAULT_TARGET_TRIPLE="${MACHINE:S/amd64/x86_64/}-apple-darwin" \
+		-DLLDB_BUILD_SERVER=OFF -G "Unix Makefiles" \
+		${CONTRIB}/llvm-project/llvm
+	${MAKE} -C ${OBJTOP}/${.TARGET:S/-/\//} all install \
+		DESTDIR=${OBJTOP}/tmp/obj-tools
 
-_bootstrap: ${_BOOTSTRAP_OBJDIRS} .WAIT _bootstrap-llvmCore
+_bootstrap: 	${_BOOTSTRAP_OBJDIRS} \
+		.WAIT \
+		_bootstrap-clang
